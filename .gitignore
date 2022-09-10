@@ -1,4 +1,4 @@
 *.bat
 .*
-!/docs/.nojekyll
+!.nojekyll
 !.gitignore
