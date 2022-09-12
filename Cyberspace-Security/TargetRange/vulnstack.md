@@ -143,7 +143,7 @@ Nmap done: 1 IP address (1 host up) scanned in 127.99 seconds
 ![](../../attaches/Pasted%20image%2020220912173653.png)
 
 下方数据库连接检测处尝试爆破mysql密码。
-
+![](../../attaches/Pasted%20image%2020220912221932.png)
 ## vulnstack2
 ### 官方介绍
 红队实战系列，主要以真实企业环境为实例搭建一系列靶场，通过练习、视频教程、博客三位一体学习。本次红队环境主要Access Token利用、WMI利用、域漏洞利用SMB relay，EWS relay，PTT(PTC)，MS14-068，GPP，SPN利用、黄金票据/白银票据/Sid History/MOF等攻防技术。关于靶场统一登录密码：1qaz@WSX
