@@ -63,7 +63,6 @@ netdiscover扫描结果如下
 2. 使用`sudo nmap -sC -sV -Pn -O -p- 192.168.1.9`扫描目标机的开放端口。
 ``` shell
 sudo nmap -sC -sV -Pn -O -p- 192.168.1.9
-
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-12 03:59 EDT
 Nmap scan report for bogon (192.168.1.9)
 Host is up (0.00030s latency).
@@ -92,7 +91,6 @@ OS CPE: cpe:/o:microsoft:windows_7::- cpe:/o:microsoft:windows_7::sp1 cpe:/o:mic
 OS details: Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1
 Network Distance: 1 hop
 Service Info: Host: STU1; OS: Windows; CPE: cpe:/o:microsoft:windows
-
 Host script results:
 | smb-os-discovery: 
 |   OS: Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)
@@ -116,7 +114,6 @@ Host script results:
 |   authentication_level: user
 |   challenge_response: supported
 |_  message_signing: disabled (dangerous, but default)
-
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 127.99 seconds
 ```
