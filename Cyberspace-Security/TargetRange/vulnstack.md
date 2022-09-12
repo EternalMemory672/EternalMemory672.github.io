@@ -2,15 +2,19 @@
 ## vulnstack1
 ### 官方介绍
 [vulnstack1官方地址](http://vulnstack.qiyuanxuetang.net/vuln/detail/2/)
+
 红队实战系列，主要以真实企业环境为实例搭建一系列靶场，通过练习、视频教程、博客三位一体学习。另外本次实战完全模拟ATT&CK攻击链路进行搭建，开成完整闭环。后续也会搭建真实APT实战环境，从实战中成长。关于环境可以模拟出各种各样实战路线，目前给出作者实战的一套攻击实战路线如下，虚拟机所有统一密码：hongrisec@2019：
+
 一、环境搭建  
 1.环境搭建测试  
 2.信息收集
+
 二、漏洞利用  
 3.漏洞搜索与利用  
 4.后台Getshell上传技巧  
 5.系统信息收集  
 6.主机密码收集
+
 三、内网搜集  
 7.内网--继续信息收集  
 8.内网攻击姿势--信息泄露  
@@ -18,14 +22,17 @@
 10.内网攻击姿势-SMB远程桌面口令猜测  
 11.内网攻击姿势-Oracle数据库TNS服务漏洞  
 12.内网攻击姿势-RPC DCOM服务漏洞
+
 四、横向移动  
 13.内网其它主机端口-文件读取  
 14.内网其它主机端口-redis  
 15.内网其它主机端口-redis Getshell  
 16.内网其它主机端口-MySQL数据库  
 17.内网其它主机端口-MySQL提权
+
 五、构建通道  
 18.内网其它主机端口-代理转发
+
 六、持久控制  
 19.域渗透-域成员信息收集  
 20.域渗透-基础服务弱口令探测及深度利用之powershell  
@@ -33,10 +40,10 @@
 22.域渗透-C2命令执行  
 23.域渗透-利用DomainFronting实现对beacon的深度隐藏  
 24.域渗透-域控实现与利用
+
 七、痕迹清理  
 25、日志清理
 ### 环境搭建
-#### 网络配置
 web服务器 win 7 桥接模式&仅主机模式（192.168.52.143 / 192.168.1.9），登录后进入`C:\phpStudy`启动小皮面板。
 ![](../attaches/Pasted%20image%2020220912140046.png)
 ![](../attaches/Pasted%20image%2020220912143035.png)
@@ -46,12 +53,11 @@ web服务器 win 7 桥接模式&仅主机模式（192.168.52.143 / 192.168.1.9�
 ![](../attaches/Pasted%20image%2020220912134042.png)
 攻击机 kali 桥接模式（192.168.1.131）
 ![](../attaches/Pasted%20image%2020220912134128.png)
-#### 域配置
-登录winserver2008配置ipv4属性如下，dns修改为192.168.52.138，此后`ping god.org`通则成功。
-![](../attaches/Pasted%20image%2020220912140924.png)
+**启动后要求修改密码，修改为：hongrisec@2022**
 ### 信息收集
-使用`netdiscover -i eth0 -r 192.168.1.0/24`（arp方式，目标开启防火墙时有奇效）或`nmap -sP -T4 192.168.1.0/24` 对当前C段主机进行存活扫描
-netdiscover扫描结果如下
+使用`netdiscover -i eth0 -r 192.168.1.0/24`（arp方式，目标开启防火墙时有奇效）或`nmap -sP -T4 192.168.1.0/24` 对当前C段主机进行存活扫描。
+
+netdiscover扫描结果如下：
 ![](../attaches/Pasted%20image%2020220912154711.png)
 
 192.168.1.1一般为网关地址，结合zte corporation判断其为中兴的网关系统。
@@ -69,7 +75,6 @@ netdiscover扫描结果如下
 
 使用`sudo nmap -sC -sV -Pn -O -p- 192.168.1.9`扫描目标机的开放端口。
 ``` shell
-sudo nmap -sC -sV -Pn -O -p- 192.168.1.9
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-12 03:59 EDT
 Nmap scan report for bogon (192.168.1.9)
 Host is up (0.00030s latency).
@@ -124,6 +129,21 @@ Host script results:
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 127.99 seconds
 ```
+
+发现80、3306端口判断应为连接了数据库的web服务器，归纳信息如下：
+- 中间件：Apache/2.4.23 (Win32)；
+- SSL：OpenSSL/1.0.2j；
+- 编程语言：PHP/5.4.45；
+- 数据库：MySQL；
+- 部署平台：小皮2014；
+- 操作系统：Windows 7 Professional SP1
+
+访问`https://192.168.1.9`得到php探针页面，泄露服务器相关信息：
+![](../../attaches/Pasted%20image%2020220912173613.png)
+![](../../attaches/Pasted%20image%2020220912173653.png)
+
+下方数据库连接检测处尝试爆破mysql密码。
+
 ## vulnstack2
 ### 官方介绍
 红队实战系列，主要以真实企业环境为实例搭建一系列靶场，通过练习、视频教程、博客三位一体学习。本次红队环境主要Access Token利用、WMI利用、域漏洞利用SMB relay，EWS relay，PTT(PTC)，MS14-068，GPP，SPN利用、黄金票据/白银票据/Sid History/MOF等攻防技术。关于靶场统一登录密码：1qaz@WSX
