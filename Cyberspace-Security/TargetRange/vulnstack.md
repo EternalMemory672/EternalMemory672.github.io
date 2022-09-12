@@ -37,20 +37,20 @@
 25、日志清理
 ### 环境搭建
 #### 网络配置
-1. web服务器 win 7 桥接模式&仅主机模式（192.168.52.143 / 192.168.1.9），登录后进入`C:\phpStudy`启动小皮面板。
+web服务器 win 7 桥接模式&仅主机模式（192.168.52.143 / 192.168.1.9），登录后进入`C:\phpStudy`启动小皮面板。
 ![](../attaches/Pasted%20image%2020220912140046.png)
 ![](../attaches/Pasted%20image%2020220912143035.png)
-2. 域控win sevrer 2008 仅主机模式（192.168.52.138）
+域控win sevrer 2008 仅主机模式（192.168.52.138）
 ![](../attaches/Pasted%20image%2020220912133423.png)
-3. 域成员 win server 2003 仅主机模式（192.168.52.141）
+域成员 win server 2003 仅主机模式（192.168.52.141）
 ![](../attaches/Pasted%20image%2020220912134042.png)
-4. 攻击机 kali 桥接模式（192.168.1.131）
+攻击机 kali 桥接模式（192.168.1.131）
 ![](../attaches/Pasted%20image%2020220912134128.png)
 #### 域配置
 登录winserver2008配置ipv4属性如下，dns修改为192.168.52.138，此后`ping god.org`通则成功。
 ![](../attaches/Pasted%20image%2020220912140924.png)
 ### 信息收集
-1. 使用`netdiscover -i eth0 -r 192.168.1.0/24`（arp方式，目标开启防火墙时有奇效）或`nmap -sP -T4 192.168.1.0/24` 对当前C段主机进行存活扫描
+使用`netdiscover -i eth0 -r 192.168.1.0/24`（arp方式，目标开启防火墙时有奇效）或`nmap -sP -T4 192.168.1.0/24` 对当前C段主机进行存活扫描
 netdiscover扫描结果如下
 ![](../attaches/Pasted%20image%2020220912154711.png)
 192.168.1.1一般为网关地址，结合zte corporation判断其为中兴的网关系统。
@@ -60,7 +60,7 @@ netdiscover扫描结果如下
 192.168.1.9为VMware虚拟机，确定为目标机。
 如下为nmap的扫描结果，与上相似。
 ![](../attaches/Pasted%20image%2020220912155934.png)
-2. 使用`sudo nmap -sC -sV -Pn -O -p- 192.168.1.9`扫描目标机的开放端口。
+使用`sudo nmap -sC -sV -Pn -O -p- 192.168.1.9`扫描目标机的开放端口。
 ``` shell
 sudo nmap -sC -sV -Pn -O -p- 192.168.1.9
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-12 03:59 EDT
