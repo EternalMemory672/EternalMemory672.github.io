@@ -10,7 +10,7 @@ nohup ../jdk1.8/bin/java -jar ./Behinder.jar >/dev/null 2>&1 &
 
 **#sudo vim /etc/ssh/sshd_config**
 
-找到并用**#注释**掉这行：**PermitRootLogin prohibit-password**
+找到并用#注释掉这行：PermitRootLogin prohibit-password
 
 /usr/local/nginx/conf
 
