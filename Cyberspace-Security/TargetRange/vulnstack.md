@@ -44,17 +44,18 @@
 七、痕迹清理  
 25、日志清理
 ### 环境搭建
-web服务器 win 7 桥接模式&仅主机模式（192.168.52.143 / 192.168.1.9），登录后进入`C:\phpStudy`启动小皮面板。
-![](../attaches/Pasted%20image%2020220912140046.png)
+web服务器 win 7 桥接模式&仅主机模式（192.168.52.143 / 192.168.1.133(9)），登录后进入`C:\phpStudy`启动小皮面板。
+![](../../attaches/Pasted%20image%2020220913172418.png)
 ![](../attaches/Pasted%20image%2020220912143035.png)
 域控win sevrer 2008 仅主机模式（192.168.52.138）
 ![](../attaches/Pasted%20image%2020220912133423.png)
 域成员 win server 2003 仅主机模式（192.168.52.141）
 ![](../attaches/Pasted%20image%2020220912134042.png)
-攻击机 kali 桥接模式（192.168.1.131）
-![](../attaches/Pasted%20image%2020220912134128.png)
+攻击机 kali NAT模式（192.168.1.131）
+![](../../attaches/Pasted%20image%2020220913172314.png)
 **启动后要求修改密码，修改为：hongrisec@2022**
 ### 信息收集
+**从此开始kali ip为192.168.1.131；win7 ip为192.168.1.9**
 使用`netdiscover -i eth0 -r 192.168.1.0/24`（arp方式，目标开启防火墙时有奇效）或`nmap -sP -T4 192.168.1.0/24` 对当前C段主机进行存活扫描。
 
 netdiscover扫描结果如下：
@@ -138,12 +139,208 @@ Nmap done: 1 IP address (1 host up) scanned in 127.99 seconds
 - 部署平台：小皮2014；
 - 操作系统：Windows 7 Professional SP1
 
-访问`https://192.168.1.9`得到php探针页面，泄露服务器相关信息：
+访问`http://192.168.1.9`得到php探针页面，泄露服务器相关信息：
 ![](../../attaches/Pasted%20image%2020220912173613.png)
 ![](../../attaches/Pasted%20image%2020220912173653.png)
 
 下方数据库连接检测处尝试爆破mysql密码。
-![](../../attaches/Pasted%20image%2020220912221932.png)
+**从此开始kali ip变更为192.168.1.131；win7 ip变更为192.168.1.133**
+打开proxy拦截MySQL检测数据包，`C-i`传到攻击模块中，猜测存在root用户，密码处添加爆破点，选择字典开始爆破。
+![](../../attaches/Pasted%20image%2020220913173508.png)
+
+发现存在弱口令root/root，在kali终端中尝试远程连接`mysql -h 192.168.1.133 -P 3306 -u root -p root`（一般设了禁用远程连接不会成功）。
+![](../../attaches/Pasted%20image%2020220913174154.png)
+
+用御剑扫描网站的目录。
+![](../../attaches/Pasted%20image%2020220913174825.png)
+
+显然存在网站备份beifen.rar
+![](../../attaches/Pasted%20image%2020220913175202.png)
+
+phpinfo界面
+![](../../attaches/Pasted%20image%2020220913175337.png)
+
+phpmyadmin管理后台
+![](../../attaches/Pasted%20image%2020220913175358.png)
+
+用root/root登录phpmyadmin，脱库。
+![](../../attaches/Pasted%20image%2020220913180314.png)
+
+admin表中存在密码信息
+![](../../attaches/Pasted%20image%2020220913180351.png)
+
+尝试用md5破解
+![](../../attaches/Pasted%20image%2020220913180424.png)
+
+得到949ba59abbe56e05，看似不是密码。
+解压备份rar，使用`tree`命令展示目录结构。
+```
+D:.
+└─beifen
+    └─yxcms
+        ├─data
+        │  ├─db_back
+        │  │  └─1384692844
+        │  └─session
+        ├─protected
+        │  ├─apps
+        │  │  ├─admin
+        │  │  │  ├─controller
+        │  │  │  ├─model
+        │  │  │  └─view
+        │  │  ├─appmanage
+        │  │  │  ├─code
+        │  │  │  │  ├─controller
+        │  │  │  │  ├─model
+        │  │  │  │  └─view
+        │  │  │  ├─controller
+        │  │  │  ├─model
+        │  │  │  └─view
+        │  │  ├─default
+        │  │  │  ├─controller
+        │  │  │  ├─model
+        │  │  │  └─view
+        │  │  │      └─default
+        │  │  ├─install
+        │  │  │  ├─controller
+        │  │  │  ├─model
+        │  │  │  └─view
+        │  │  └─member
+        │  │      ├─controller
+        │  │      ├─model
+        │  │      └─view
+        │  ├─base
+        │  │  ├─api
+        │  │  ├─controller
+        │  │  ├─extend
+        │  │  └─model
+        │  ├─cache
+        │  │  ├─log
+        │  │  └─tmp
+        │  └─include
+        │      ├─core
+        │      │  ├─cache
+        │      │  └─db
+        │      ├─ext
+        │      │  └─phpmailer
+        │      └─lib
+        ├─public
+        │  ├─admin
+        │  │  ├─css
+        │  │  ├─images
+        │  │  └─js
+        │  ├─artDialog
+        │  │  ├─plugins
+        │  │  └─skins
+        │  │      ├─aero
+        │  │      │  └─ie6
+        │  │      ├─black
+        │  │      │  └─ie6
+        │  │      ├─blue
+        │  │      │  └─ie6
+        │  │      ├─chrome
+        │  │      ├─green
+        │  │      │  └─ie6
+        │  │      ├─icons
+        │  │      ├─idialog
+        │  │      │  └─ie6
+        │  │      └─opera
+        │  │          └─ie6
+        │  ├─codeEditor
+        │  ├─css
+        │  ├─default
+        │  │  └─default
+        │  │      ├─css
+        │  │      ├─images
+        │  │      └─js
+        │  ├─dict
+        │  ├─images
+        │  │  └─graphics
+        │  │      └─outlines
+        │  ├─install
+        │  │  └─images
+        │  ├─js
+        │  ├─kindeditor
+        │  │  ├─lang
+        │  │  ├─plugins
+        │  │  │  ├─anchor
+        │  │  │  ├─autoheight
+        │  │  │  ├─baidumap
+        │  │  │  ├─ckplayer
+        │  │  │  ├─clearhtml
+        │  │  │  ├─code
+        │  │  │  ├─emoticons
+        │  │  │  │  └─images
+        │  │  │  ├─filemanager
+        │  │  │  │  └─images
+        │  │  │  ├─flash
+        │  │  │  ├─flv
+        │  │  │  ├─image
+        │  │  │  │  └─images
+        │  │  │  ├─insertfile
+        │  │  │  ├─lineheight
+        │  │  │  ├─link
+        │  │  │  ├─map
+        │  │  │  ├─media
+        │  │  │  ├─multiimage
+        │  │  │  │  └─images
+        │  │  │  ├─pagebreak
+        │  │  │  ├─plainpaste
+        │  │  │  ├─preview
+        │  │  │  ├─quickformat
+        │  │  │  ├─table
+        │  │  │  ├─template
+        │  │  │  │  └─html
+        │  │  │  └─wordpaste
+        │  │  └─themes
+        │  │      ├─common
+        │  │      ├─default
+        │  │      ├─qq
+        │  │      └─simple
+        │  ├─member
+        │  │  ├─css
+        │  │  ├─images
+        │  │  └─js
+        │  ├─uploadify
+        │  └─watermark
+        └─upload
+            ├─extend
+            ├─fragment
+            │  └─image
+            ├─links
+            ├─news
+            │  ├─file
+            │  ├─flash
+            │  ├─image
+            │  │  ├─20120716
+            │  │  ├─20130407
+            │  │  ├─20130709
+            │  │  └─20131114
+            │  └─media
+            ├─pages
+            │  └─image
+            └─photos
+```
+猜测网站url为`http://192.168.1.133/yxcms/`，访问。
+![](../../attaches/Pasted%20image%2020220913181026.png)
+公告信息中泄露了后台入口和管理员账号密码。
+![](../../attaches/Pasted%20image%2020220913182118.png)
+### 渗透
+登录后台
+![](../../attaches/Pasted%20image%2020220913182327.png)
+
+前台模板处可以文件上传
+![](../../attaches/Pasted%20image%2020220913190644.png)
+
+上传木马
+![](../../attaches/Pasted%20image%2020220913212204.png)
+
+在网站备份中检索特征字符串，找到文件上传的位置。
+![](../../attaches/Pasted%20image%2020220913191620.png)
+
+三个路径都试一下，得到core的位置，用蚁剑连接成功getshell。
+![](../../attaches/Pasted%20image%2020220913211934.png)
+
 ## vulnstack2
 ### 官方介绍
 红队实战系列，主要以真实企业环境为实例搭建一系列靶场，通过练习、视频教程、博客三位一体学习。本次红队环境主要Access Token利用、WMI利用、域漏洞利用SMB relay，EWS relay，PTT(PTC)，MS14-068，GPP，SPN利用、黄金票据/白银票据/Sid History/MOF等攻防技术。关于靶场统一登录密码：1qaz@WSX
