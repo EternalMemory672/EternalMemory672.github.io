@@ -149,6 +149,7 @@ Nmap done: 1 IP address (1 host up) scanned in 127.99 seconds
 
 发现存在弱口令root/root，在kali终端中尝试远程连接`mysql -h 192.168.1.133 -P 3306 -u root -p root`（一般设了禁用远程连接不会成功）。
 ![](../../attaches/Pasted%20image%2020220913174154.png)
+
 用御剑扫描网站的目录。
 ![](../../attaches/Pasted%20image%2020220913174825.png)
 显然存在网站备份beifen.rar
