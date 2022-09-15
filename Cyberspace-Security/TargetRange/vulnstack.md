@@ -346,9 +346,7 @@ D:.
 ![](../../attaches/Pasted%20image%2020220914183859.png)
 使用mimikatz抓取明文密码。
 ![](../../attaches/Pasted%20image%2020220914182914.png)
-观察到在god域中Administrator的密码为hongrisec@2022。
-
-执行命令开启靶机的3389端口并关闭防火墙。
+观察到在god域中Administrator的密码为hongrisec@2022。执行命令开启靶机的3389端口并关闭防火墙（为了进行远程桌面连接，若只想对域进行控制此步可以省略）。
 ```
 REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal" "Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f
 
@@ -375,13 +373,26 @@ ipconfig得到内网网段：192.168.52.1/24。
 上传局域网查看器，并扫描内网存活主机。
 ![](../../attaches/Pasted%20image%2020220914190106.png)
 根据之前获取到的域内信息，除本机外存在域控OWA（192.168.52.138）、域成员ROOT-TVI862UBEH（192.168.52.141），并得知二者的系统信息。
-**分支1：**
+
+**路径1：**
+
 右键目标使用svc-exe进行提权看到system上线。
 ![](../../attaches/Pasted%20image%2020220914201213.png)
-
+在交互会话中键入`net view`查看域中的成员，在目标列表中可以看到新出现的目标。
+![](../../attaches/Pasted%20image%2020220915081348.png)
+![](../../attaches/Pasted%20image%2020220915081521.png)
+建立新的SMB监听器。
 ![](../../attaches/Pasted%20image%2020220914231131.png)
+右击域控OWA，选择横向移动-psexec，选择域控的明文密码。
+![](../../attaches/Pasted%20image%2020220915081721.png)
+![](../../attaches/Pasted%20image%2020220915081847.png)
+运行之后域控上线，权限为system。
+![](../../attaches/Pasted%20image%2020220915082215.png)
+用同样的方法上线域成员。
+![](../../attaches/Pasted%20image%2020220915083228.png)
+至此完成对整个域的控制。
 
-![](../../attaches/Pasted%20image%2020220914231227.png)
+**路径2：**
 
 在kali中打开msf，并执行以下命令准备一个监听，准备将shell从cs移交给msf。
 ```
