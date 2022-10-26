@@ -9,3 +9,6 @@
 * [隧道与代理](./Cyberspace-Security/Method/隧道与代理)
 * [软件安全 · 栈溢出实验](./Cyberspace-Security/practice/2022-10-4-栈溢出实验.md)
 * [软件安全 · shellcode实验](./Cyberspace-Security/practice/2022-10-15-shellcode实验.md)
+* [软件安全 · 缓冲区溢出综述](./Cyberspace-Security/practice/2022-10-24-栈溢出综述.md)
+
+-   [图神经网络代码分析](./Cyberspace-Security/practice/2022-10-26-图神经网络代码分析.md)
