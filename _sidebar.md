@@ -15,3 +15,5 @@
 * [大数据安全 · cookie在线追踪实验](./Cyberspace-Security/practice/2022-11-12-cookie在线追踪实验.md)
 * [软件安全 · 虚函数实验](./Cyberspace-Security/practice/2022-11-17-虚函数实验.md)
 * [软件安全 · 格式化输出实验](./Cyberspace-Security/practice/2022-12-1-格式化输出实验.md)
+* [云计算安全 · dm_linear和dm_strip代码分析](./Cyberspace-Security/practice/2023-4-11-dm_linear和dm_strip代码分析.md)
+* [Java代码审计](./Cyberspace-Security/Method/Java代码审计.md)
