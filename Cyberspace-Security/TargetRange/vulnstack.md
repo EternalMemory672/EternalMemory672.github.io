@@ -1,5 +1,7 @@
 # vulnstack
+
 ## vulnstack1
+
 ### 官方介绍
 [vulnstack1官方地址](http://vulnstack.qiyuanxuetang.net/vuln/detail/2/)
 
@@ -690,7 +692,7 @@ Ubuntu 2：
 -   路由转发与代理
     -   二层网络代理
     -   三层网络代理
-**横向移动：**
+    **横向移动：**
 -   内网（域内）信息收集
 -   MS17-010
 -   Windows系统NTLM与用户凭据获取
